@@ -2,6 +2,7 @@ from flask import Flask, redirect, request, session, url_for
 import requests
 import uuid
 import config
+from keycloak_admin import get_admin_token, get_user_id
 
 app = Flask(__name__)
 app.secret_key = "super-secreta"  # Use algo seguro no real
@@ -15,21 +16,35 @@ userinfo_url = config.KEYCLOAK_SERVER + "/realms/" + config.REALM + "/protocol/o
 def home():
     if "user_info" in session:
         return (
-            "<h1>Ola, " + session['user_info']['preferred_username'] + "!</h1>"
+            "<h1>Olá, " + session['user_info']['preferred_username'] + "!</h1>"
             "<p><a href='/logout'>Logout</a></p>"
+            "<form action='/delete' method='post'>"
+            "<button type='submit'>Deletar Conta</button>"
         )
     else:
-        return '<a href="/login">Login</a>'
+        return (
+            "<p><a href='/login'>Login</a></p>"
+            "<p><a href='/login?register=1'>Criar nova conta</a></p>"
+        )
+
 
 @app.route("/login")
 def login():
     state = str(uuid.uuid4())
     session["state"] = state
 
+    # Verifica se está vindo com ?register=1 na URL
+    kc_action = "kc_action=register" if request.args.get("register") == "1" else ""
+
     query_params = "?client_id={}&response_type=code&scope=openid&redirect_uri={}&state={}".format(
         config.CLIENT_ID, config.REDIRECT_URI, state
     )
+
+    if kc_action:
+        query_params += "&" + kc_action
+
     return redirect(auth_url + query_params)
+
 
 @app.route("/callback")
 def callback():
@@ -62,7 +77,38 @@ def callback():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect("/")
+    logout_url = (
+        config.KEYCLOAK_SERVER + "/realms/" + config.REALM + "/protocol/openid-connect/logout"
+        + "?post_logout_redirect_uri=" + url_for("home", _external=True)
+        + "&client_id=" + config.CLIENT_ID
+    )
+    return redirect(logout_url)
+
+@app.route("/delete", methods=["POST"])
+def delete_account():
+    if "user_info" not in session:
+        return redirect("/")
+
+    username = session["user_info"]["preferred_username"]
+    token = get_admin_token()
+    user_id = get_user_id(username, token)
+
+    if not user_id:
+        return "Usuário não encontrado", 404
+
+    delete_resp = requests.delete(
+        f"{config.KEYCLOAK_SERVER}/admin/realms/{config.REALM}/users/{user_id}",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    if delete_resp.status_code == 204:
+        session.clear()
+        return (
+            "Conta excluída com sucesso"
+            "<p><a href='/'>Página Inicial</a></p>")
+    else:
+        return f"Erro ao excluir: {delete_resp.text}", 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
