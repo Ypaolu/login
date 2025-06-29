@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}Página Inicial{% endblock %}
+
+{% block content %}
+    {% if username %}
+        <h2>Olá, {{ username }}!</h2>
+    {% else %}
+        <p>Bem-vindo! Faça login ou crie uma conta.</p>
+    {% endif %}
+{% endblock %}

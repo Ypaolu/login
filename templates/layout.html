@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Login via Keycloak{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Login via Keycloak</h1>
+        <nav>
+            {% if session.get('user_info') %}
+                <a href="/logout">Logout</a>
+                <form action="/delete" method="post" style="display:inline;">
+                    <button type="submit">Deletar Conta</button>
+                </form>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/login?register=1">Criar Conta</a>
+            {% endif %}
+        </nav>
+        <hr>
+    </header>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <hr>
+        <p style="text-align:center;">&copy; 2025 - Paulo Henrique Vidal Assis de Paula</p>
+    </footer>
+</body>
+</html>

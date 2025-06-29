@@ -1,4 +1,4 @@
-from flask import Flask, redirect, request, session, url_for
+from flask import Flask, redirect, request, session, url_for, render_template
 import requests
 import uuid
 import config
@@ -15,17 +15,9 @@ userinfo_url = config.KEYCLOAK_SERVER + "/realms/" + config.REALM + "/protocol/o
 @app.route("/")
 def home():
     if "user_info" in session:
-        return (
-            "<h1>Olá, " + session['user_info']['preferred_username'] + "!</h1>"
-            "<p><a href='/logout'>Logout</a></p>"
-            "<form action='/delete' method='post'>"
-            "<button type='submit'>Deletar Conta</button>"
-        )
+        return render_template("home.html", username=session["user_info"]["preferred_username"])
     else:
-        return (
-            "<p><a href='/login'>Login</a></p>"
-            "<p><a href='/login?register=1'>Criar nova conta</a></p>"
-        )
+        return render_template("home.html", username=None)
 
 
 @app.route("/login")
