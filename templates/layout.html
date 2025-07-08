@@ -11,12 +11,11 @@
         <nav>
             {% if session.get('user_info') %}
                 <a href="/logout">Logout</a>
-                <form action="/delete" method="post" style="display:inline;">
-                    <button type="submit">Deletar Conta</button>
-                </form>
+                <a href="/delete">Deletar Conta</a>
+                <a href="/edit">Editar Dados da Conta</a>
             {% else %}
                 <a href="/login">Login</a>
-                <a href="/login?register=1">Criar Conta</a>
+                <a href="/register">Criar Conta</a>
             {% endif %}
         </nav>
         <hr>

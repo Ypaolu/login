@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+
+{% block title %}Conta Criada{% endblock %}
+
+{% block content %}
+<h2>Conta criada com sucesso!</h2>
+<p>Olá, <strong>{{ username }}</strong>, sua conta foi criada com sucesso.</p>
+<p>Você já pode fazer login usando suas credenciais.</p>
+<a href="/login" class="btn">Ir para Login</a>
+{% endblock %}

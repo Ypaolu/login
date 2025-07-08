@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+
+{% block title %}Excluir Conta{% endblock %}
+
+{% block content %}
+<h2>Tem certeza que deseja excluir sua conta?</h2>
+
+<p>Essa ação é irreversível. Todos os seus dados serão apagados do Keycloak.</p>
+
+<form method="POST" action="/delete">
+    <button type="submit" style="background-color:red; color:white;">Sim, excluir minha conta</button>
+    <a href="/" style="margin-left: 10px;">Cancelar</a>
+</form>
+{% endblock %}
